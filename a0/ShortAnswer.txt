@@ -8,13 +8,7 @@ Jill Stein and Gary Johnson are more similar than Hillary Clinton and Donald
 Trump.
 
 How is this approach misleading? How might you fix it?
-
-
-
-
-
-
-
+We need to consider the total number of friends they have. In this example, Jill and Gary have 1645 and 3484 friends, respectively. However, Hillary and Donald only have 761 and 45 friends. So the percentage of similarity for Jill&Stein and Hillary&Donald are 238/(1645+3484) = 4% and 1/(761+45) = 0.1%, which is more reliable than previous method.
 
 
 
@@ -23,14 +17,8 @@ do you think this user is followed by both Hilary Clinton and Donald Trump,
 who are rivals? Do some web searches to see if you can find out more
 information.
 
-
-
-
-
-
-
-
-
+White house is followed by Hillary and Donald. Since Donald is the president now, administrates the whole USA and white house. Therefore, it’s really clear that Donald follows White house.
+Hillary was first lady before. She also made twice presidential run, which means she needs to keep in touch with white house.
 
 
 
@@ -39,7 +27,8 @@ information.
 Johnson follows over 3K accounts, while Donald Trump follows less than
 50). Why do you think this is? How might that affect our analysis?
 
-
+Since Donald doesn’t trust anyone except his family members, he has really fewer friends in the real world.
+It will affect our analysis because the total number that Johnson and Donald follow are too less. It’ll be better if  
 
 
 
