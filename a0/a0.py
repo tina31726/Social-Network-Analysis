@@ -37,10 +37,10 @@ import sys
 import time
 from TwitterAPI import TwitterAPI
 
-consumer_key = 'fixme'
-consumer_secret = 'fixme'
-access_token = 'fixme'
-access_token_secret = 'fixme'
+consumer_key = 'ZQUWep0tLQOMLlAzp3rc5nfLC'
+consumer_secret = 'WcUpLnL307p7mRVw8blFT9B6cfAeXeNyJurdEcgqyjX5PgtKin'
+access_token = '953384758742081541-vRfGVBxWZfOVKmKMf0I142BXEjzFbRP'
+access_token_secret = 'XjkTkXGQQdO2gFv29W5pPEZh6F3IhrrRJRjkZSugJEKGa'
 
 
 # This method is done for you.
@@ -66,9 +66,10 @@ def read_screen_names(filename):
     >>> read_screen_names('candidates.txt')
     ['DrJillStein', 'GovGaryJohnson', 'HillaryClinton', 'realDonaldTrump']
     """
-    ###TODO
-    pass
-
+    with open(filename) as f:
+        content = f.read().splitlines()
+    return content
+     ###TODO
 
 # I've provided the method below to handle Twitter's rate limiting.
 # You should call this method whenever you need to access the Twitter API.
@@ -112,8 +113,9 @@ def get_users(twitter, screen_names):
     >>> [u['id'] for u in users]
     [6253282, 783214]
     """
+    request = robust_request(twitter,'users/lookup',{'screen_name': screen_names},10)
+    return request
     ###TODO
-    pass
 
 
 def get_friends(twitter, screen_name):
@@ -137,8 +139,12 @@ def get_friends(twitter, screen_name):
     >>> get_friends(twitter, 'aronwc')[:5]
     [695023, 1697081, 8381682, 10204352, 11669522]
     """
+    request = robust_request(twitter,'friends/ids',{'screen_name': screen_name},10)
+    tweets = [r for r in request]
+    tweets = sorted(tweets)
+    return tweets    
     ###TODO
-    pass
+
 
 
 def add_all_friends(twitter, users):
@@ -159,6 +165,9 @@ def add_all_friends(twitter, users):
     >>> users[0]['friends'][:5]
     [695023, 1697081, 8381682, 10204352, 11669522]
     """
+    for i in range(0,len(users)):
+        users[i]['friends'] = get_friends(twitter,users[i]['screen_name'])
+
     ###TODO
     pass
 
@@ -170,8 +179,19 @@ def print_num_friends(users):
         users....The list of user dicts.
     Returns:
         Nothing
+        
+     DrJillStein 1645
+     GovGaryJohnson 3484
+    HillaryClinton 761
+    realDonaldTrump 45   
     """
+    
     ###TODO
+    test = []
+    for i in range(0,len(users)):
+        test.append(tuple((users[i]['screen_name'],len(users[i]['friends']))))
+    
+    print(sorted(test , key = lambda a: a[0]))        
     pass
 
 
@@ -187,9 +207,16 @@ def count_friends(users):
     >>> c = count_friends([{'friends': [1,2]}, {'friends': [2,3]}, {'friends': [2,3]}])
     >>> c.most_common()
     [(2, 3), (3, 2), (1, 1)]
+    
+    [(18766459, 3), (19608297, 3), (822215673812119553, 3), (12, 2), (428333, 2)]
     """
     ###TODO
-    pass
+    
+    # Count words
+    counts = Counter()
+    for u in users:
+        counts.update(u['friends'])
+    return counts
 
 
 def friend_overlap(users):
@@ -212,9 +239,24 @@ def friend_overlap(users):
     ...     {'screen_name': 'c', 'friends': ['1', '2', '3']},
     ...     ])
     [('a', 'c', 3), ('a', 'b', 2), ('b', 'c', 2)]
+    
+    Friend Overlap:
+[('DrJillStein', 'GovGaryJohnson', 238), ('GovGaryJohnson', 'HillaryClinton', 14), ('GovGaryJohnson', 'realDonaldTrump', 13), ('DrJillStein', 'HillaryClinton', 3), ('HillaryClinton', 'realDonaldTrump', 1), ('DrJillStein', 'realDonaldTrump', 0)]
     """
     ###TODO
-    pass
+    Friend_overlap = []
+    i=0
+    for u in users:
+        i=i+1
+        for u2 in range (i,len(users)):
+            counts = Counter()
+            counts.update(u['friends'])
+            counts.update(users[u2]['friends'])
+            total = [k for k in counts if counts[k]>1 ]
+            Friend_overlap.append(tuple((u['screen_name'],users[u2]['screen_name'],len(total))))
+    
+    Friend_overlap = sorted(Friend_overlap, key= lambda a: a[2], reverse=True)
+    return Friend_overlap
 
 
 def followed_by_hillary_and_donald(users, twitter):
@@ -232,8 +274,14 @@ def followed_by_hillary_and_donald(users, twitter):
         that is followed by both Hillary Clinton and Donald Trump.
     """
     ###TODO
-    pass
 
+    counts = Counter()
+    counts.update(users[2]['friends'])
+    counts.update(users[3]['friends'])
+    tweeter_id = counts.most_common(1)[0][0]
+    request = request = robust_request(twitter,'users/lookup',{'user_id': tweeter_id},10)
+    screen_name = [r['screen_name'] for r in request]
+    return screen_name
 
 def create_graph(users, friend_counts):
     """ Create a networkx undirected Graph, adding each candidate and friend
@@ -251,7 +299,23 @@ def create_graph(users, friend_counts):
       A networkx Graph
     """
     ###TODO
-    pass
+    # Create a graph
+    graph = nx.Graph()
+    
+    for i in list(friend_counts):
+        if friend_counts[i]<2:
+            del friend_counts[i]
+  
+    for u in users:
+        counts = Counter()
+        counts.update(u['friends'])
+        overlap = counts&friend_counts
+        for o in list(overlap):
+            graph.add_edge(u['screen_name'],o)
+            
+    nx.draw_networkx(graph, with_labels=True)
+    
+    return graph
 
 
 def draw_network(graph, users, filename):
@@ -265,7 +329,25 @@ def draw_network(graph, users, filename):
     make it look presentable.
     """
     ###TODO
-    pass
+    fig1 = plt.figure(figsize=(50, 50))
+    pos=nx.spring_layout(graph)
+    nx.draw_networkx_nodes(graph,pos,
+                       nodelist=pos,
+                       node_size=1500,alpha=0.6)
+    nx.draw_networkx_edges(graph,pos,
+                       nodelist=pos,
+                       width=1,alpha=0.3,edge_color='k')
+
+    label = {n:n if type(n)==str  else '' for n in graph.nodes()}
+
+    nx.draw_networkx_labels(graph,pos,label,font_size=60)
+    plt.axis('off')
+    plt.show()
+    plt.draw()
+    fig1.savefig('network.png') 
+    fig1.savefig(filename) 
+    
+    
 
 
 def main():
@@ -289,6 +371,11 @@ def main():
     print('graph has %s nodes and %s edges' % (len(graph.nodes()), len(graph.edges())))
     draw_network(graph, users, 'network.png')
     print('network drawn to network.png')
+    
+    request = robust_request(twitter,'statuses/user_timeline',{'screen_name': 'WhiteHouse'
+                                                               , 'count': 200},10)
+    timeline =[t['text'] for t in request]
+    print('got %d tweets for user %s' % (len(timeline), 'WhiteHouse'))
 
 
 if __name__ == '__main__':
