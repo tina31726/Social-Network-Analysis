@@ -8,6 +8,7 @@ Jill Stein and Gary Johnson are more similar than Hillary Clinton and Donald
 Trump.
 
 How is this approach misleading? How might you fix it?
+
 We need to consider the total number of friends they have. In this example, Jill and Gary have 1645 and 3484 friends, respectively. However, Hillary and Donald only have 761 and 45 friends. So the percentage of similarity for Jill&Stein and Hillary&Donald are 238/(1645+3484) = 4% and 1/(761+45) = 0.1%, which is more reliable than previous method.
 
 
@@ -28,7 +29,7 @@ Johnson follows over 3K accounts, while Donald Trump follows less than
 50). Why do you think this is? How might that affect our analysis?
 
 Since Donald doesn’t trust anyone except his family members, he has really fewer friends in the real world.
-It will affect our analysis because the total number that Johnson and Donald follow are too less. It’ll be better if  
+It will affect our analysis because the total number that Johnson and Donald follow are too less. It’ll be better if we can keep exploring 14 friends overlapping between them more detail like how many people they follow, which can assist out analysis. 
 
 
 
@@ -44,3 +45,5 @@ https://dev.twitter.com/rest/reference/get/friends/ids, how many requests will
 we have to make? Given how Twitter does rate limiting
 (https://dev.twitter.com/rest/public/rate-limiting), approximately how many
 minutes will it take to collect this data?
+
+Because the rate limitation is 15 request per 15 mins, and each friends/ids request can retrieve up to 5k. Therefore, there are 45 friends that Donald Trump follows, and we assume each friend follows 5k people. Then we can get 45 request/min *5k/5k= 45 mins
