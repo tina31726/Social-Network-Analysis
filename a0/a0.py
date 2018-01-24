@@ -371,11 +371,6 @@ def main():
     print('graph has %s nodes and %s edges' % (len(graph.nodes()), len(graph.edges())))
     draw_network(graph, users, 'network.png')
     print('network drawn to network.png')
-    
-    request = robust_request(twitter,'statuses/user_timeline',{'screen_name': 'WhiteHouse'
-                                                               , 'count': 200},10)
-    timeline =[t['text'] for t in request]
-    print('got %d tweets for user %s' % (len(timeline), 'WhiteHouse'))
 
 
 if __name__ == '__main__':
