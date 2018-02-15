@@ -1,7 +1,8 @@
 graph has 5062 nodes and 6060 edges
 subgraph has 712 nodes and 1710 edges
 norm_cut scores by max_depth:
-[(1, 1.0070175438596491), (2, 1.0005847953216374), (3, 0.12177725118483412), (4, 0.12177725118483412)]
+[(1, 1.0070175438596491), (2, 1.0005847953216374), (3, 0.12177725118483412)
+, (4, 0.12177725118483412)]
 2 clusters
 first partition: cluster 1 has 11 nodes and cluster 2 has 701 nodes
 smaller cluster nodes:

@@ -488,10 +488,9 @@ def make_training_graph(graph, test_node, n):
     ###TODO
 
     graph_copy = graph.copy()
-    node_list = sorted(graph.neighbors(test_node))
     
-    for n1 in range(n):
-        graph_copy.remove_edge(node_list[n1],test_node)
+    for n1 in sorted(graph.neighbors(test_node))[0:n]:
+        graph_copy.remove_edge(n1,test_node)
 
     
     return graph_copy
