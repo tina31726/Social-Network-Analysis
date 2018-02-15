@@ -292,7 +292,7 @@ def get_subgraph(graph, min_degree):
     """
 
     node_list =[u for u,v in nx.degree(graph).items() if v >=min_degree]
-    subgraph = graph.subgraph(node_list)
+    subgraph = graph.subgraph(set(node_list))
     return subgraph
      ###TODO
 
