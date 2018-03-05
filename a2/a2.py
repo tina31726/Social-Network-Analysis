@@ -2,21 +2,16 @@
 
 """
 CS579: Assignment 2
-
 In this assignment, you will build a text classifier to determine whether a
 movie review is expressing positive or negative sentiment. The data come from
 the website IMDB.com.
-
 You'll write code to preprocess the data in different ways (creating different
 features), then compare the cross-validation accuracy of each approach. Then,
 you'll compute accuracy on a test set and do some analysis of the errors.
-
 The main method takes about 40 seconds for me to run on my laptop. Places to
 check for inefficiency include the vectorize function and the
 eval_all_combinations function.
-
 Complete the 14 methods below, indicated by TODO.
-
 As usual, completing one method at a time, and debugging with doctests, should
 help.
 """
@@ -30,7 +25,7 @@ import numpy as np
 import os
 import re
 from scipy.sparse import csr_matrix
-from sklearn.cross_validation import KFold
+from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
 import string
 import tarfile
@@ -53,7 +48,6 @@ def read_data(path):
     Walks all subdirectories of this path and reads all
     the text files and labels.
     DONE ALREADY.
-
     Params:
       path....path to files
     Returns:
@@ -79,13 +73,11 @@ def tokenize(doc, keep_internal_punct=False):
     is inside of a word. E.g., in the example below, the token "isn't"
     is maintained when keep_internal_punct=True; otherwise, it is
     split into "isn" and "t" tokens.
-
     Params:
       doc....a string.
       keep_internal_punct...see above
     Returns:
       a numpy array containing the resulting tokens.
-
     >>> tokenize(" Hi there! Isn't this fun?", keep_internal_punct=False)
     array(['hi', 'there', 'isn', 't', 'this', 'fun'], 
           dtype='<U5')
@@ -103,13 +95,11 @@ def token_features(tokens, feats):
     is pre-pended with the string "token=".
     Note that the feats dict is modified in place,
     so there is no return value.
-
     Params:
       tokens...array of token strings from a document.
       feats....dict from feature name to frequency
     Returns:
       nothing; feats is modified in place.
-
     >>> feats = defaultdict(lambda: 0)
     >>> token_features(['hi', 'there', 'hi'], feats)
     >>> sorted(feats.items())
@@ -123,7 +113,6 @@ def token_pair_features(tokens, feats, k=3):
     """
     Compute features indicating that two words occur near
     each other within a window of size k.
-
     For example [a, b, c, d] with k=3 will consider the
     windows: [a,b,c], [b,c,d]. In the first window,
     a_b, a_c, and b_c appear; in the second window,
@@ -132,14 +121,12 @@ def token_pair_features(tokens, feats, k=3):
     Note that the order of the tokens in the feature name
     matches the order in which they appear in the document.
     (e.g., a__b, not b__a)
-
     Params:
       tokens....array of token strings from a document.
       feats.....a dict from feature to value
       k.........the window size (3 by default)
     Returns:
       nothing; feats is modified in place.
-
     >>> feats = defaultdict(lambda: 0)
     >>> token_pair_features(np.array(['a', 'b', 'c', 'd']), feats)
     >>> sorted(feats.items())
@@ -157,13 +144,11 @@ def lexicon_features(tokens, feats):
     Add features indicating how many time a token appears that matches either
     the neg_words or pos_words (defined above). The matching should ignore
     case.
-
     Params:
       tokens...array of token strings from a document.
       feats....dict from feature name to frequency
     Returns:
       nothing; feats is modified in place.
-
     In this example, 'LOVE' and 'great' match the pos_words,
     and 'boring' matches the neg_words list.
     >>> feats = defaultdict(lambda: 0)
@@ -179,14 +164,12 @@ def featurize(tokens, feature_fns):
     """
     Compute all features for a list of tokens from
     a single document.
-
     Params:
       tokens........array of token strings from a document.
       feature_fns...a list of functions, one per feature
     Returns:
       list of (feature, value) tuples, SORTED alphabetically
       by the feature name.
-
     >>> feats = featurize(np.array(['i', 'LOVE', 'this', 'great', 'movie']), [token_features, lexicon_features])
     >>> feats
     [('neg_words', 0), ('pos_words', 2), ('token=LOVE', 1), ('token=great', 1), ('token=i', 1), ('token=movie', 1), ('token=this', 1)]
@@ -200,7 +183,6 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     Given the tokens for a set of documents, create a sparse
     feature matrix, where each row represents a document, and
     each column represents a feature.
-
     Params:
       tokens_list...a list of lists; each sublist is an
                     array of token strings from a document.
@@ -214,7 +196,6 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
       that the columns are sorted alphabetically (so, the feature
       "token=great" is column 0 and "token=horrible" is column 1
       because "great" < "horrible" alphabetically),
-
     >>> docs = ["Isn't this movie great?", "Horrible, horrible movie"]
     >>> tokens_list = [tokenize(d) for d in docs]
     >>> feature_fns = [token_features]
@@ -246,13 +227,11 @@ def cross_validation_accuracy(clf, X, labels, k):
     Compute the average testing accuracy over k folds of cross-validation. You
     can use sklearn's KFold class here (no random seed, and no shuffling
     needed).
-
     Params:
       clf......A LogisticRegression classifier.
       X........A csr_matrix of features.
       labels...The true labels for each instance in X
       k........The number of cross-validation folds.
-
     Returns:
       The average testing accuracy of the classifier
       over each fold of cross-validation.
@@ -267,17 +246,14 @@ def eval_all_combinations(docs, labels, punct_vals,
     Enumerate all possible classifier settings and compute the
     cross validation accuracy for each setting. We will use this
     to determine which setting has the best accuracy.
-
     For each setting, construct a LogisticRegression classifier
     and compute its cross-validation accuracy for that setting.
-
     In addition to looping over possible assignments to
     keep_internal_punct and min_freqs, we will enumerate all
     possible combinations of feature functions. So, if
     feature_fns = [token_features, token_pair_features, lexicon_features],
     then we will consider all 7 combinations of features (see Log.txt
     for more examples).
-
     Params:
       docs..........The list of original training documents.
       labels........The true labels for each training document (0 or 1)
@@ -286,7 +262,6 @@ def eval_all_combinations(docs, labels, punct_vals,
       feature_fns...List of possible feature functions to use
       min_freqs.....List of possible min_freq values to use
                     (e.g., [2,5,10])
-
     Returns:
       A list of dicts, one per combination. Each dict has
       four keys:
@@ -294,9 +269,7 @@ def eval_all_combinations(docs, labels, punct_vals,
       'features': The list of functions used to compute features.
       'min_freq': The setting of the min_freq parameter.
       'accuracy': The average cross_validation accuracy for this setting, using 5 folds.
-
       This list should be SORTED in descending order of accuracy.
-
       This function will take a bit longer to run (~20s for me).
     """
     ###TODO
@@ -319,7 +292,6 @@ def mean_accuracy_per_setting(results):
     we'll compute the mean accuracy of all combinations with a particular
     setting. For example, compute the mean accuracy of all runs with
     min_freq=2.
-
     Params:
       results...The output of eval_all_combinations
     Returns:
@@ -336,7 +308,6 @@ def fit_best_classifier(docs, labels, best_result):
     re-vectorize all the training data and fit a
     LogisticRegression classifier to all training data.
     (i.e., no cross-validation done here)
-
     Params:
       docs..........List of training document strings.
       labels........The true labels for each training document (0 or 1)
@@ -356,7 +327,6 @@ def top_coefs(clf, label, n, vocab):
     Find the n features with the highest coefficients in
     this classifier for this label.
     See the .coef_ attribute of LogisticRegression.
-
     Params:
       clf.....LogisticRegression classifier
       label...1 or 0; if 1, return the top coefficients
@@ -378,10 +348,8 @@ def parse_test_data(best_result, vocab):
     and vectorize the testing data. Note that vocab should
     be passed to the vectorize function to ensure the feature
     mapping is consistent from training to testing.
-
     Note: use read_data function defined above to read the
     test data.
-
     Params:
       best_result...Element of eval_all_combinations
                     with highest accuracy
@@ -411,7 +379,6 @@ def print_top_misclassified(test_docs, test_labels, X_test, clf, n):
     for the incorrect class.
     E.g., if document i is misclassified as positive, we will
     consider the probability of the positive class when sorting.
-
     Params:
       test_docs.....List of strings, one per test document
       test_labels...Array of true testing labels
@@ -419,7 +386,6 @@ def print_top_misclassified(test_docs, test_labels, X_test, clf, n):
       clf...........LogisticRegression classifier fit on all training
                     data.
       n.............The number of documents to print.
-
     Returns:
       Nothing; see Log.txt for example printed output.
     """
