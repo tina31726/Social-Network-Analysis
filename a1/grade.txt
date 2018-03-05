@@ -1,0 +1,119 @@
+Grade: 42.00/50.00
+
+5 Deduction(s):
+
+--------------
+#1: 2.00 points
+Failing test: test_brute_force_norm_cut1: 
+        @points=2
+        
+Traceback (most recent call last):
+  File "../assignments-sol/a1/a1_test.py", line 199, in test_brute_force_norm_cut1
+    self.assertEqual(r, [(0.41666666666666663, [('B', 'D')])])
+AssertionError: Lists differ: [(0.41666666666666663, (('B', 'D'),))] != [(0.41666666666666663, [('B', 'D')])]
+
+First differing element 0:
+(0.41666666666666663, (('B', 'D'),))
+(0.41666666666666663, [('B', 'D')])
+
+- [(0.41666666666666663, (('B', 'D'),))]
+?                        ^          ^^
+
++ [(0.41666666666666663, [('B', 'D')])]
+?                        ^          ^
+
+
+source:
+    def test_brute_force_norm_cut1(self):
+         """
+         @points=2
+         """
+         r = brute_force_norm_cut(example_graph(), 1)
+         self.assertEqual(len(r), 1)
+         self.assertEqual(r, [(0.41666666666666663, [('B', 'D')])])
+--------------
+
+--------------
+#2: 2.00 points
+Failing test: test_brute_force_norm_cut2: 
+        @points=2
+        
+Traceback (most recent call last):
+  File "../assignments-sol/a1/a1_test.py", line 206, in test_brute_force_norm_cut2
+    self.assertEqual(len(r), 14)
+AssertionError: 13 != 14
+
+source:
+    def test_brute_force_norm_cut2(self):
+         """
+         @points=2
+         """
+         r = brute_force_norm_cut(example_graph(), 2)
+         self.assertEqual(len(r), 14)
+         self.assertEqual(sorted(r)[0], (0.41666666666666663, [('A', 'B'), ('B', 'D')]))
+--------------
+
+--------------
+#3: 2.00 points
+Failing test: test_brute_force_norm_cut3: 
+        @points=2
+        
+Traceback (most recent call last):
+  File "../assignments-sol/a1/a1_test.py", line 215, in test_brute_force_norm_cut3
+    self.assertEqual(len(r), 68)
+AssertionError: 54 != 68
+
+source:
+    def test_brute_force_norm_cut3(self):
+         """
+         @points=2
+         """
+         r = brute_force_norm_cut(example_graph(), 3)
+         self.assertEqual(len(r), 68)
+         self.assertEqual(sorted(r)[-1], (1.3333333333333333, [('D', 'F'), ('E', 'F'), ('F', 'G')]))
+--------------
+
+--------------
+#4: 1.00 points
+Failing test: test_complexity_1: 
+        @points=1
+        
+Traceback (most recent call last):
+  File "../assignments-sol/a1/a1_test.py", line 124, in test_complexity_1
+    self.assertTrue(x == y, 'k has no effect in worst case')
+AssertionError: False is not true : k has no effect in worst case
+
+source:
+    def test_complexity_1(self):
+         """
+         @points=1
+         """
+         x = complexity_of_bfs(1000, 500, 10)
+         y = complexity_of_bfs(1000, 500, 50)
+         self.assertTrue(y is not None, 'nothing returned')
+         self.assertTrue(x == y, 'k has no effect in worst case')
+--------------
+
+--------------
+#5: 1.00 points
+Failing test: test_complexity_4: 
+        @points=1
+        
+Traceback (most recent call last):
+  File "../assignments-sol/a1/a1_test.py", line 155, in test_complexity_4
+    self.assertEqual(round(y - x, 0), 4000, 'additive')
+AssertionError: 400.0 != 4000 : additive
+
+source:
+    def test_complexity_4(self):
+         """
+         @points=1
+         """
+         x = complexity_of_bfs(2000, 500, 10)
+         y = complexity_of_bfs(6000, 500, 10)
+         self.assertEqual(round(y - x, 0), 4000, 'additive')
+         x = complexity_of_bfs(2000, 500, 10)
+         y = complexity_of_bfs(2000, 1500, 10)
+         self.assertEqual(round(y - x, 0), 1000, 'additive')
+--------------
+
