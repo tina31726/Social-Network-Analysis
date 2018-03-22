@@ -30,6 +30,10 @@ import tarfile
 import urllib.request
 import time
 
+from zipfile import ZipFile
+from urllib.request import urlopen
+from io import BytesIO
+
 def download_data():
     """ Download and unzip data.
     DONE ALREADY.
@@ -97,6 +101,7 @@ def tokenize(doc, keep_internal_punct=False):
         return np.asarray(re.findall("\w+[$&+,:;=?@#|'<>.^*()%!-]*\w+", remove_br))
     else:
         return np.asarray(re.findall('\w+', remove_br))
+    
     
     pass
 
@@ -198,7 +203,6 @@ def lexicon_features(tokens, feats):
             feats['neg_words']+=1
         if n.lower() in pos_words: 
             feats['pos_words']+=1
-    
     pass
 
 
@@ -224,7 +228,6 @@ def featurize(tokens, feature_fns):
     for fun in feature_fns:
         feats = defaultdict(lambda: 0)
         fun(tokens,feats)
-#        print(sorted(feats.items()))
         result_feat.extend(feats.items())
     
     return sorted(result_feat)
@@ -411,7 +414,7 @@ def eval_all_combinations(docs, labels, punct_vals,
                     X,vocab = vectorize(tokens_list, feature_fn_combin, freq,None)
                     clf = LogisticRegression()
                     result_dic['accuracy']=cross_validation_accuracy(clf, X, labels, 5)
-#                     print(str(result_dic))
+                    print(str(result_dic))
                     result_list.append(result_dic)
     return sorted(result_list,key= lambda x:x['accuracy'], reverse=True)
     
@@ -483,6 +486,22 @@ def mean_accuracy_per_setting(results):
     
     pass
 
+def enlarge_pos_neg():
+    url = urlopen('http://www2.compute.dtu.dk/~faan/data/AFINN.zip')
+    zipfile = ZipFile(BytesIO(url.read()))
+    afinn_file = zipfile.open('AFINN/AFINN-111.txt')
+    
+    pos_words=[]
+    neg_words=[]
+    for line in afinn_file:
+        parts = line.strip().split()
+        if len(parts) == 2:
+            if int(parts[1])>0:
+                pos_words.append(parts[0].decode("utf-8"))
+            if int(parts[1])<0:
+                neg_words.append(parts[0].decode("utf-8"))
+
+    
 
 def fit_best_classifier(docs, labels, best_result):
     """
@@ -651,7 +670,9 @@ def main():
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
     
     # Fit best classifier.
-    clf, vocab = fit_best_classifier(docs, labels, results[0])
+    enlarge_pos_neg()
+    best_result['min_freq']=2
+    clf, vocab = fit_best_classifier(docs, labels, best_result)
     
     # Print top coefficients per class.
     print('\nTOP COEFFICIENTS PER CLASS:')
@@ -672,7 +693,5 @@ def main():
     print_top_misclassified(test_docs, test_labels, X_test, clf, 5)
 
 if __name__ == '__main__':
-    start=time.time()
+
     main()
-    end=time.time()
-    print("time:",start-end)

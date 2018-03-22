@@ -1,8 +1,14 @@
 1. Looking at the top errors printed by get_top_misclassified, name two ways you would modify your classifier to improve accuracy (it could be features, tokenization, or something else.)
 
+a.Enlarge lexicon dataset from AFINN data
+b.Change penalty parameter in LogisticRegression from l2 to l1
+
 
 
 
 
 
 2. Implement one of the above methods. How did it affect the results?
+I implement a method in a2_ShortAnswer.py file and there are three step below :
+I download AFINN data and classify each lexicon into positive or negative list. I also change min_freq in best_result from 5 to 2 when doing fit_best_classifier,
+finally the accuracy is growing up from 0.73 to 0,7475
