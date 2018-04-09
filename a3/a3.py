@@ -41,20 +41,25 @@ def tokenize(movies):
     Append a new column to the movies DataFrame with header 'tokens'.
     This will contain a list of strings, one per token, extracted
     from the 'genre' field of each movie. Use the tokenize_string method above.
-
     Note: you may modify the movies parameter directly; no need to make
     a new copy.
     Params:
       movies...The movies DataFrame
     Returns:
       The movies DataFrame, augmented to include a new column called 'tokens'.
-
     >>> movies = pd.DataFrame([[123, 'Horror|Romance'], [456, 'Sci-Fi']], columns=['movieId', 'genres'])
     >>> movies = tokenize(movies)
     >>> movies['tokens'].tolist()
     [['horror', 'romance'], ['sci-fi']]
     """
     ###TODO
+#    movies = pd.DataFrame([[123, 'Horror|Romance'], [456, 'Sci-Fi']], columns=['movieId', 'genres'])
+    genres_list=list(movies['genres'])
+    token_list=[]
+    for n in genres_list:
+        token_list.append((tokenize_string(n)))
+    movies['tokens']=token_list
+    return movies
     pass
 
 
@@ -72,7 +77,6 @@ def featurize(movies):
     max_k tf(k, d) is the maximum frequency of any term in document d
     N is the number of documents (movies)
     df(i) is the number of unique documents containing term i
-
     Params:
       movies...The movies DataFrame
     Returns:
@@ -81,6 +85,32 @@ def featurize(movies):
       - The vocab, a dict from term to int. Make sure the vocab is sorted alphabetically as in a2 (e.g., {'aardvark': 0, 'boy': 1, ...})
     """
     ###TODO
+    freq_dir = Counter()
+    for index, row  in movies.iterrows():
+        freq_dir.update(row['tokens'])  
+    
+    feats_sorted = sorted(freq_dir.keys(), key=lambda x: x)
+    vocab_dic= {} 
+    for index, feat in enumerate(feats_sorted):
+        vocab_dic[feat]=index    
+    
+    N=len(movies)
+    feature_list=[]   
+    for index,row in movies.iterrows():
+        tf_idf_matrix=[0 for i in range(len(feats_sorted))]
+        max_k= Counter(row['tokens']).most_common(1)[0][1]
+        for token in row['tokens']:
+            df=freq_dir[token]
+            tf=Counter(row['tokens'])[token]
+            tfidf=tf/max_k*math.log10(N/df)
+            tf_idf_matrix[vocab_dic[token]]=tfidf
+        row_csr=csr_matrix([tf_idf_matrix])
+#        print(row_csr.toarray())
+        feature_list.append(row_csr)
+        
+    movies['features']=feature_list
+    return movies,vocab_dic
+    
     pass
 
 
@@ -106,6 +136,14 @@ def cosine_sim(a, b):
       where ||a|| indicates the Euclidean norm (aka L2 norm) of vector a.
     """
     ###TODO
+#    a= movies.iloc[0]['features']
+#    b=movies.iloc[1]['features']
+    lenght_a=np.sqrt((a.toarray()**2).sum())
+    lenght_b=np.sqrt((b.toarray()**2).sum())
+    dot_value=a.toarray()[0].dot(b.toarray()[0])
+    
+    return dot_value/(lenght_a*lenght_b)
+
     pass
 
 
@@ -113,17 +151,14 @@ def make_predictions(movies, ratings_train, ratings_test):
     """
     Using the ratings in ratings_train, predict the ratings for each
     row in ratings_test.
-
     To predict the rating of user u for movie i: Compute the weighted average
     rating for every other movie that u has rated.  Restrict this weighted
     average to movies that have a positive cosine similarity with movie
     i. The weight for movie m corresponds to the cosine similarity between m
     and i.
-
     If there are no other movies with positive cosine similarity to use in the
     prediction, use the mean rating of the target user in ratings_train as the
     prediction.
-
     Params:
       movies..........The movies DataFrame.
       ratings_train...The subset of ratings used for making predictions. These are the "historical" data.
@@ -132,6 +167,27 @@ def make_predictions(movies, ratings_train, ratings_test):
       A numpy array containing one predicted rating for each element of ratings_test.
     """
     ###TODO
+    rate_list=[]
+    
+    for index,row in ratings_test.iterrows():
+        user_id=row.userId
+        movie_x=movies.features[movies.movieId==row.movieId].values[0]
+        sim_sum=0
+        sim_rate=0
+        movie_mean=np.mean(ratings_train[ratings_train.userId==user_id]['rating'].values)
+        for index_train,row_train in ratings_train[ratings_train.userId==user_id].iterrows():
+             movie_y=movies.features[movies.movieId==row_train.movieId].values[0]
+             sim=cosine_sim(movie_x,movie_y)
+             if sim>=0:
+                 sim_sum+=sim            
+                 sim_rate+=(row_train.rating*sim)
+        if sim_sum!=0:
+            rate_list.append(sim_rate/sim_sum)
+        else:
+            rate_list.append(movie_mean)
+             
+    return rate_list
+    
     pass
 
 
